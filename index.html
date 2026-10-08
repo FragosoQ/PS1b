@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SOMENGIL · PS5</title>
+<title>SOMENGIL · PS1</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -912,7 +912,7 @@ footer {
     <div class="h-center">
       <span class="h-badge">Soldadura</span>
       <div class="h-sep"></div>
-      <span class="h-badge">Posto 5</span>
+      <span class="h-badge">Posto 1</span>
     </div>
 
     <span class="h-time" id="htime">—</span>
@@ -1021,7 +1021,7 @@ footer {
       <span class="f-status">Em Curso</span>
       <span class="f-op-divider" style="width:1px;height:20px;background:rgba(255,255,255,0.1);margin:0 8px;flex-shrink:0;"></span>
       <span class="f-op-label">Colaborador</span>
-      <span class="f-op">Pedro</span>
+      <span class="f-op">OCTÁVIO</span>
     </div>
     <div class="f-right">
       <div class="f-date" id="fdate">—</div>
@@ -1976,14 +1976,14 @@ const ZONA_CONFIGS = [
     nome: 'Histórico',
     type: 'list',
     listSource: {
-      tab: 'PS5',
+      tab: 'PS1',
       mode: 'row-headers',
       startColumn: 'AL',
       endColumn: 'CE',
       ignoreLabels: ['%'],
       hideHeader: true,
       gridLayout: { cols: 4, rows: 3, flow: 'column' },
-      matchValue: 5,
+      matchValue: 1,
       limit: 12,
     },
   },
@@ -2003,7 +2003,7 @@ const ZONA_CONFIGS = [
 // Cache simples para a lista de lotes — partilhado pelo refresh periódico
 const ZONA_LIST_CACHE = {};
 
-// Modelo+Lote actual (vindo do PS5!D2). Actualizado por refreshPs5Details.
+// Modelo+Lote actual (vindo do PS1!D2). Actualizado por refreshPs1Details.
 // Usado para destacar o item correspondente nas listas (ex: Planeamento).
 let currentModeloLote = null;
 
@@ -2496,8 +2496,8 @@ function loadAndRenderPaises() {
   });
 }
 
-// Modelo/Lote (PS5!D2), Início (PS5!J2), Previsto (PS5!F2) e estado (PS5!A2).
-function refreshPs5Details() {
+// Modelo/Lote (PS1!D2), Início (PS1!J2), Previsto (PS1!F2) e estado (PS1!A2).
+function refreshPs1Details() {
   const DATE_PLACEHOLDER = '-- / -- / ----';
   const MODEL_PLACEHOLDER = '—';
 
@@ -2514,7 +2514,7 @@ function refreshPs5Details() {
     return { modelo: text, lote: null };
   }
 
-  return fetchSecondaryRowFields('PS5', {
+  return fetchSecondaryRowFields('PS1', {
     inicio: { header: 'INÍCIO SOLDADURA / ACABAMENTO', column: 'J' },
     previsto: { header: 'DATA PRETENDIDA', column: 'F' },
     modeloLote: { header: 'LOTE', column: 'D' },
@@ -2545,7 +2545,7 @@ function refreshPs5Details() {
 
     updateStatus(chaveProcura);
   }).catch(err => {
-    console.warn('Falha a carregar dados do PS5:', err);
+    console.warn('Falha a carregar dados do PS1:', err);
     modelDataAvailable = false;
     loadAndRenderPaises();
     renderText(dataInicioEl, DATE_PLACEHOLDER, DATE_PLACEHOLDER);
@@ -2564,15 +2564,15 @@ function refreshPs5Details() {
 function renderSheetData(sheetRow) {
   if (!sheetRow) return;
 
-  // Modelo, Lote e datas vêm do PS5 (refreshPs5Details)
-  // Evolução Global vem do PS5!AK (refreshPs5Fields)
+  // Modelo, Lote e datas vêm do PS1 (refreshPs1Details)
+  // Evolução Global vem do PS1!AK (refreshPs1Fields)
   // Países vêm de montagemEditável (refrescados pelo seu próprio watcher — ver loadAndRenderPaises)
-  refreshPs5Details();
-  refreshPs5Fields();
+  refreshPs1Details();
+  refreshPs1Fields();
   renderZones(sheetRow);
 }
 
-function getPs5ActivePriorityPercentage(table, row, activePriority) {
+function getPs1ActivePriorityPercentage(table, row, activePriority) {
   const priorityNumber = Number(String(activePriority == null ? '' : activePriority).trim());
   if (!Number.isInteger(priorityNumber) || priorityNumber < 1) return null;
 
@@ -2594,17 +2594,17 @@ function getPs5ActivePriorityPercentage(table, row, activePriority) {
   return null;
 }
 
-async function fetchPs5Summary() {
-  const table = await fetchSecondaryTable('PS5');
+async function fetchPs1Summary() {
+  const table = await fetchSecondaryTable('PS1');
   const row = table && Array.isArray(table.rows) ? table.rows[0] : null;
   const readValue = (header, column) => {
     const index = findSheetCell(table, header, column);
     return index >= 0 ? getValueFromRow(row, index) : null;
   };
-  const prioridadeAtiva = readValue('Posto5', 'CM');
+  const prioridadeAtiva = readValue('Posto1', 'CI');
   return {
     prioridadeAtiva,
-    prioridadeAtivaPct: getPs5ActivePriorityPercentage(table, row, prioridadeAtiva),
+    prioridadeAtivaPct: getPs1ActivePriorityPercentage(table, row, prioridadeAtiva),
     geral: readValue('GERAL', 'AK'),
   };
 }
@@ -2622,8 +2622,8 @@ function updatePrioridadeEmCurso(prioridade, pct) {
   document.getElementById('prioCursoBar').style.width = `${Math.max(0, Math.min(100, pct))}%`;
 }
 
-function refreshPs5Fields() {
-  return fetchPs5Summary().then(({ prioridadeAtiva, prioridadeAtivaPct, geral }) => {
+function refreshPs1Fields() {
+  return fetchPs1Summary().then(({ prioridadeAtiva, prioridadeAtivaPct, geral }) => {
     const ativaBox = document.getElementById('prioridadeAtiva');
     const ativaValueEl = document.getElementById('prioridadeAtivaValue');
     const prioridade = prioridadeAtiva != null && String(prioridadeAtiva).trim() !== ''
@@ -2635,13 +2635,13 @@ function refreshPs5Fields() {
 
     const geralPct = parseSheetPercentage(geral);
     if (geralPct == null) {
-      console.warn('[evolução] valor de GERAL (PS5!AK2) não parseável:', geral);
+      console.warn('[evolução] valor de GERAL (PS1!AK2) não parseável:', geral);
     } else {
-      console.log('[evolução] GERAL (PS5!AK2) =', geral, '→', geralPct, '%');
+      console.log('[evolução] GERAL (PS1!AK2) =', geral, '→', geralPct, '%');
     }
     updateEvolucao(geralPct != null ? geralPct : 0);
   }).catch(err => {
-    console.warn('Falha a carregar prioridade ativa/evolução do PS5:', err);
+    console.warn('Falha a carregar prioridade ativa/evolução do PS1:', err);
     const ativaBox = document.getElementById('prioridadeAtiva');
     const ativaValueEl = document.getElementById('prioridadeAtivaValue');
     if (ativaValueEl) ativaValueEl.textContent = '—';
@@ -2662,20 +2662,9 @@ function initializeSheetWatcher() {
     SHEET_POLL_INTERVAL
   );
 
-  const stopPs5 = watchSheetTab(
-    { tab: 'PS5' },
-    () => {
-      refreshPs5Details();
-      refreshPs5Fields();
-      renderZones(null);
-    },
-    SHEET_POLL_INTERVAL
-  );
-
   window.addEventListener('beforeunload', () => {
     stopPs1();
     stopPaises();
-    stopPs5();
   });
 }
 
